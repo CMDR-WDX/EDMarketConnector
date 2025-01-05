@@ -624,6 +624,7 @@ class Session:
     # This is a dummy value, to signal to Session.capi_query_worker that we
     # the 'station' triplet of queries.
     _CAPI_PATH_STATION = '_edmc_station'
+    _CMDRS_ALREADY_TRIED_OAUTH: set[str] = set()
 
     def __init__(self) -> None:
         self.state = Session.STATE_INIT
@@ -696,8 +697,11 @@ class Session:
             if self.state == Session.STATE_OK:
                 logger.debug('already logged in (state == STATE_OK)')
                 return True  # already logged in
-
+        elif config.get_bool("capi_stop_after_first_attempt", default=False) and cmdr in self._CMDRS_ALREADY_TRIED_OAUTH:
+            logger.warning(f"capi_stop_after_first_attempt is set and cAPI Login was already attempted for CMDR {cmdr}")
+            return False
         else:
+            self._CMDRS_ALREADY_TRIED_OAUTH.add(cmdr)
             credentials = {'cmdr': cmdr, 'beta': is_beta}
             if self.credentials == credentials and self.state == Session.STATE_OK:
                 logger.debug(f'already logged in (is_beta = {is_beta})')

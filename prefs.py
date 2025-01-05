@@ -457,6 +457,7 @@ class PreferencesDialog(tk.Toplevel):
 
         # CAPI settings
         self.capi_fleetcarrier = tk.BooleanVar(value=config.get_bool('capi_fleetcarrier'))
+        self.capi_stop_after_first_attempt = tk.BooleanVar(value=config.get_bool('capi_stop_after_first_attempt', default=False))
 
         ttk.Separator(config_frame, orient=tk.HORIZONTAL).grid(
                 columnspan=4, padx=self.PADX, pady=self.SEPY, sticky=tk.EW, row=row.get()
@@ -473,6 +474,12 @@ class PreferencesDialog(tk.Toplevel):
                 text=tr.tl('Enable Fleet Carrier CAPI Queries'),
                 variable=self.capi_fleetcarrier
             ).grid(columnspan=4, padx=self.BUTTONX, pady=self.PADY, sticky=tk.W, row=row.get())
+        nb.Checkbutton(
+            config_frame,
+            # LANG: Configuration - Stop trying to acquire CAPI Token after first attempt
+            text=tr.tl('Only try to get CAPI Token once'),
+            variable=self.capi_stop_after_first_attempt
+        ).grid(columnspan=4, padx=self.BUTTONX, pady=self.PADY, sticky=tk.W, row=row.get())
 
         if sys.platform == 'win32':
             ttk.Separator(config_frame, orient=tk.HORIZONTAL).grid(
@@ -1264,6 +1271,7 @@ class PreferencesDialog(tk.Toplevel):
             config.set('journaldir', logdir)
 
         config.set('capi_fleetcarrier', self.capi_fleetcarrier.get())
+        config.set('capi_stop_after_first_attempt', self.capi_stop_after_first_attempt.get())
 
         if sys.platform == 'win32':
             config.set('hotkey_code', self.hotkey_code)
